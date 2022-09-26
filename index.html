@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="heading">
+        <h1>Pokedex!!</h1>
+    </div>
+    <div id="pokemonList" class="pokemonList">
+    </div>
+    <div class="container">
+        <div class="details-container d-none">
+            <div class="heading">Details</div>
+            <div class="details">
+            </div>
+        </div>
+        <div class="abilities-container d-none">
+            <div class="heading">Abilities</div>
+
+            <div class="abilities">
+
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    const totalPokemonsLimit = 5;
+    const offset = 0;
+    const pokemonBaseURL = "https://pokeapi.co/api/v2/pokemon";
+    const abilityBaseURL = "https://pokeapi.co/api/v2/ability";
+    const pokemonListURL = `${pokemonBaseURL}?limit=${totalPokemonsLimit}&offset=${offset}`;
+    const getPokemons = async () => {
+        const pokemons = await fetch(pokemonListURL);
+        const pokemonsJSON = await pokemons.json();
+        pokemonsJSON.results.forEach(async (pokemon) => {
+            await getDetails(pokemon.name);
+        });
+
+    }
+    getPokemons()
+    const getDetails = async (pokemonID) => {
+        const pokemonDetails = await fetch(`${pokemonBaseURL}/${pokemonID}`);
+        const pokemonDetailsJSON = await pokemonDetails.json();
+        createPokemonList(pokemonDetailsJSON);
+    }
+
+    const createPokemonList = (pokemon) => {
+        const pokemonList = document.querySelector('#pokemonList');
+        const pokemonTag = document.createElement('div');
+        const imageTag = document.createElement('img');
+        const nameTag = document.createElement('span');
+        nameTag.classList.add('pokemon-name');
+        nameTag.innerText = pokemon.name
+        pokemonTag.classList.add('pokemon');
+
+        imageTag.src = pokemon.sprites.front_default;
+        imageTag.alt = pokemon.name;
+        pokemonTag.addEventListener('click', () => {
+            createDetails(pokemon);
+        }, false)
+        pokemonTag.appendChild(imageTag);
+        pokemonTag.appendChild(nameTag);
+        pokemonList.appendChild(pokemonTag);
+    }
+</script>
+
+</html>
+<style>
+    .pokemonList {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .pokemonList>.pokemon {
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
+        width: 150px;
+        height: 150px;
+        margin: 10px;
+        cursor: pointer;
+
+    }
+
+    .pokemonList>.pokemon>img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .pokemonList>.pokemon>.pokemon-name {
+        text-align: center;
+        border: 1px solid black;
+        margin-top: -10px;
+        text-transform: capitalize;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: row;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .details,
+    .abilities {
+        width: 100%;
+        border: 1px solid black;
+        min-height: 150px;
+        text-transform: capitalize;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        height: 100%;
+    }
+
+    .key-value-pair {
+        width: 100%;
+    }
+
+    .key-value-pair:nth-child(odd) {
+        margin: 5px 0;
+    }
+
+    .value {
+        cursor: pointer;
+    }
+
+    .value>a {
+        text-decoration: underline;
+        text-transform: capitalize;
+    }
+
+    .value>a:not(:first-child)::before {
+        content: ', ';
+        margin-right: 5px;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    .details-container,
+    .abilities-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        max-width: 50%;
+        width: 50%;
+        margin: 10px;
+        padding: 10px;
+        text-transform: capitalize;
+    }
+
+    .details-container>.heading,
+    .abilities-container>.heading {
+        border: 1px solid black;
+        max-width: 10%;
+        min-width: fit-content;
+        text-align: center;
+        margin: 10px 0;
+    }
+
+    .heading {
+        text-align: center;
+    }
+</style>
