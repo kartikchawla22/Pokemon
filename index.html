@@ -39,6 +39,7 @@
     const getPokemons = async () => {
         const pokemons = await fetch(pokemonListURL);
         const pokemonsJSON = await pokemons.json();
+        console.log(pokemonsJSON);
         pokemonsJSON.results.forEach(async (pokemon) => {
             await getDetails(pokemon.name);
         });
@@ -59,7 +60,16 @@
         detailsContainerDiv.classList.add('d-none');
 
     }
+    const clearAbilities = () => {
+        const abilitiesDiv = document.querySelector('.abilities');
+        const abilitiesContainerDiv = document.querySelector('.abilities-container');
+        if (abilitiesDiv.childElementCount > 0) {
+            abilitiesDiv.innerHTML = "";
+        }
+        abilitiesContainerDiv.classList.add('d-none');
+    }
     const createDetails = (pokemon) => {
+        clearAbilities();
         clearDetails();
         const detailsDiv = document.querySelector('.details');
         const detailsContainerDiv = document.querySelector('.details-container');
@@ -68,8 +78,10 @@
         const nameDiv = createKeyValuePairForDetails({ key: "Name", value: pokemon.name });
         const heightDiv = createKeyValuePairForDetails({ key: "Height", value: pokemon.height });
         const baseExperienceDiv = createKeyValuePairForDetails({ key: "Base Experience", value: pokemon.base_experience });
+        const abilitiesDiv = createAbilities({ key: "Abilities", value: pokemon.abilities });
         detailsDiv.appendChild(nameDiv);
         detailsDiv.appendChild(heightDiv);
+        detailsDiv.appendChild(abilitiesDiv);
         detailsDiv.appendChild(baseExperienceDiv);
     }
     const createKeyValuePairForDetails = (kvp) => {
@@ -84,6 +96,50 @@
         div.appendChild(keySpan);
         div.appendChild(valueSpan);
         return div;
+    }
+    const createAbilities = (kvp) => {
+        const div = document.createElement('div');
+        div.classList.add('key-value-pair');
+        const keySpan = document.createElement("span");
+        keySpan.classList.add('key');
+        keySpan.innerText = `${kvp.key}: `;
+        const valueSpan = document.createElement("span");
+        valueSpan.classList.add('value');
+        console.log(kvp.value);
+        kvp.value.forEach(element => {
+            const anchorTag = document.createElement('a');
+            anchorTag.innerText = element.ability.name;
+            anchorTag.addEventListener('click', () => {
+                createKeyValuePairForAbilities(element.ability.name);
+
+            })
+            valueSpan.appendChild(anchorTag);
+        });
+
+        div.appendChild(keySpan);
+        div.appendChild(valueSpan);
+        return div;
+    }
+    const createKeyValuePairForAbilities = async (ability) => {
+        const abilityDetails = await fetch(`${abilityBaseURL}/${ability}`);
+        const abilityDetailsJSON = await abilityDetails.json();
+        clearAbilities();
+        console.log(abilityDetailsJSON);
+        const effect_entries = abilityDetailsJSON.effect_entries.find((ability) => ability.language.name === 'en');
+        const flavor_text_entries = abilityDetailsJSON.flavor_text_entries.find((ability) => ability.language.name === 'en');
+        console.log(flavor_text_entries);
+        const abilitiesDiv = document.querySelector('.abilities');
+        const abilitiesContainerDiv = document.querySelector('.abilities-container');
+
+        abilitiesContainerDiv.classList.remove('d-none');
+        const nameDiv = createKeyValuePairForDetails({ key: "Ability Name", value: abilityDetailsJSON.name });
+        const effectDiv = createKeyValuePairForDetails({ key: "Ability Effect", value: effect_entries.effect.replace(/\n/g, "") });
+        const shortEffectDiv = createKeyValuePairForDetails({ key: "Short Effect", value: effect_entries.short_effect.replace(/\n/g, "") });
+        const flavourTextDiv = createKeyValuePairForDetails({ key: "Flavour Text", value: flavor_text_entries.flavor_text.replace(/\n/g, "") });
+        abilitiesDiv.appendChild(nameDiv);
+        abilitiesDiv.appendChild(effectDiv);
+        abilitiesDiv.appendChild(shortEffectDiv);
+        abilitiesDiv.appendChild(flavourTextDiv);
     }
     const createPokemonList = (pokemon) => {
         const pokemonList = document.querySelector('#pokemonList');
