@@ -50,7 +50,41 @@
         const pokemonDetailsJSON = await pokemonDetails.json();
         createPokemonList(pokemonDetailsJSON);
     }
+    const clearDetails = () => {
+        const detailsDiv = document.querySelector('.details');
+        const detailsContainerDiv = document.querySelector('.details-container');
+        if (detailsDiv.childElementCount > 0) {
+            detailsDiv.innerHTML = "";
+        }
+        detailsContainerDiv.classList.add('d-none');
 
+    }
+    const createDetails = (pokemon) => {
+        clearDetails();
+        const detailsDiv = document.querySelector('.details');
+        const detailsContainerDiv = document.querySelector('.details-container');
+
+        detailsContainerDiv.classList.remove('d-none');
+        const nameDiv = createKeyValuePairForDetails({ key: "Name", value: pokemon.name });
+        const heightDiv = createKeyValuePairForDetails({ key: "Height", value: pokemon.height });
+        const baseExperienceDiv = createKeyValuePairForDetails({ key: "Base Experience", value: pokemon.base_experience });
+        detailsDiv.appendChild(nameDiv);
+        detailsDiv.appendChild(heightDiv);
+        detailsDiv.appendChild(baseExperienceDiv);
+    }
+    const createKeyValuePairForDetails = (kvp) => {
+        const div = document.createElement('div');
+        div.classList.add('key-value-pair');
+        const keySpan = document.createElement("span");
+        keySpan.classList.add('key');
+        keySpan.innerText = `${kvp.key}: `;
+        const valueSpan = document.createElement("span");
+        valueSpan.classList.add('value');
+        valueSpan.innerText = `${kvp.value}`;
+        div.appendChild(keySpan);
+        div.appendChild(valueSpan);
+        return div;
+    }
     const createPokemonList = (pokemon) => {
         const pokemonList = document.querySelector('#pokemonList');
         const pokemonTag = document.createElement('div');
